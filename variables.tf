@@ -9,3 +9,15 @@ variable "tags" {
   description = "Use tags to identify project resources"
   default     = {}
 }
+
+variable "region" {
+  type        = string
+  description = "The region to deploy in"
+  default     = "us-east-1"
+}
+
+variable "username" {
+  type        = string
+  description = "Username of who is deploying this, for naming purposes"
+  default     = "liam-johnston"
+}
