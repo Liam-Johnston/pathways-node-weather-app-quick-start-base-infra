@@ -9,7 +9,7 @@ module "networking" {
   source = "./modules/networking"
 
   username     = var.username
-  cidr_address = "10.1.0.0/23"
+  cidr_address = var.cidr_address
   region       = var.region
   az_names     = data.aws_availability_zones.available.names
 }

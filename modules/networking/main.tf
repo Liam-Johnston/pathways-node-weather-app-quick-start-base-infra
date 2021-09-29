@@ -6,30 +6,6 @@ resource "aws_vpc" "vpc" {
   }
 }
 
-resource "aws_subnet" "private" {
-  count = local.number_of_az
-
-  availability_zone = var.az_names[count.index]
-  vpc_id            = aws_vpc.vpc.id
-  cidr_block        = cidrsubnet(var.cidr_address, local.private_subnet_newbits, count.index)
-
-  tags = {
-    Name = "${var.username}-private-subnet-${trimprefix(var.az_names[count.index], var.region)}"
-  }
-}
-
-resource "aws_subnet" "public" {
-  count = local.number_of_az
-
-  availability_zone = var.az_names[count.index]
-  vpc_id            = aws_vpc.vpc.id
-  cidr_block        = cidrsubnet(var.cidr_address, local.public_subnet_newbits, count.index + local.number_of_az * 4)
-
-  tags = {
-    Name = "${var.username}-public-subnet-${trimprefix(var.az_names[count.index], var.region)}"
-  }
-}
-
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 
@@ -38,102 +14,39 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-resource "aws_eip" "eip_for_nat" {
-  count = local.number_of_az
-
-  vpc               = true
-
-  tags = {
-    Name = "${var.username}-eip-${trimprefix(var.az_names[count.index], var.region)}"
-  }
-}
-
-resource "aws_nat_gateway" "nat" {
-  count = local.number_of_az
-
-  allocation_id = aws_eip.eip_for_nat[count.index].id
-  subnet_id     = resource.aws_subnet.public[count.index].id
-
-  tags = {
-    Name = "${var.username}-nat-public-${trimprefix(var.az_names[count.index], var.region)}"
-  }
-
-  depends_on = [aws_internet_gateway.igw]
-}
-
 resource "aws_vpc_endpoint" "s3_endpoint" {
   vpc_id = aws_vpc.vpc.id
-  service_name = "${local.aws_service_endpoint}.s3"
+  service_name = data.aws_vpc_endpoint_service.s3.service_name
 
   tags = {
     Name = "${var.username}-s3-vpc-endpoint"
   }
 }
 
-resource "aws_route_table" "public" {
-  count = local.number_of_az
+module "public_subnets" {
+  count       = length(var.az_names)
+  source      = "./subnet"
 
-  vpc_id            = aws_vpc.vpc.id
+  username    = var.username
+  az          = var.az_names[count.index]
+  az_suffix   = trimprefix(var.az_names[count.index], var.region)
+  vpc_id      = aws_vpc.vpc.id
 
-  route = [
-    {
-      cidr_block = "0.0.0.0/0"
-      gateway_id = aws_internet_gateway.igw.id
-      carrier_gateway_id = ""
-      destination_prefix_list_id = ""
-      egress_only_gateway_id = ""
-      instance_id = ""
-      ipv6_cidr_block = ""
-      local_gateway_id = ""
-      nat_gateway_id = ""
-      network_interface_id = ""
-      transit_gateway_id = ""
-      vpc_endpoint_id = ""
-      vpc_peering_connection_id = ""
-    }
-  ]
-  tags = {
-    Name = "${var.username}-public-route-table-${trimprefix(var.az_names[count.index], var.region)}"
-  }
+  cidr_block  = cidrsubnet(var.cidr_address, local.public_subnet_newbits, count.index + local.number_of_az * 4)
+  subnet_type = "public"
+  rt_gw_id    = aws_internet_gateway.igw.id
 }
 
-resource "aws_route_table_association" "public" {
-  count = local.number_of_az
+module "private_subnets" {
+  count   = length(var.az_names)
+  source  = "./subnet"
 
-  subnet_id       = aws_subnet.public[count.index].id
-  route_table_id  = aws_route_table.public[count.index].id
-}
+  username      = var.username
+  az            = var.az_names[count.index]
+  az_suffix     = trimprefix(var.az_names[count.index], var.region)
+  vpc_id        = aws_vpc.vpc.id
 
-
-resource "aws_route_table" "private" {
-  count = local.number_of_az
-
-  vpc_id            = aws_vpc.vpc.id
-  route = [{
-    cidr_block      = "0.0.0.0/0"
-    nat_gateway_id  = aws_nat_gateway.nat[count.index].id
-
-    network_interface_id = ""
-    transit_gateway_id = ""
-    vpc_endpoint_id = ""
-    vpc_peering_connection_id = ""
-    gateway_id = ""
-    carrier_gateway_id = ""
-    destination_prefix_list_id = ""
-    egress_only_gateway_id = ""
-    instance_id = ""
-    ipv6_cidr_block = ""
-    local_gateway_id = ""
-  }]
-
-  tags = {
-    Name = "${var.username}-private-route-table-${trimprefix(var.az_names[count.index], var.region)}"
-  }
-}
-
-resource "aws_route_table_association" "private" {
-  count = local.number_of_az
-
-  subnet_id       = aws_subnet.private[count.index].id
-  route_table_id  = aws_route_table.private[count.index].id
+  cidr_block    = cidrsubnet(var.cidr_address, local.private_subnet_newbits, count.index)
+  subnet_type   = "private"
+  rt_nat_gw_id  = module.public_subnets[count.index].nat_gw_id
 }

@@ -19,5 +19,21 @@ variable "region" {
 variable "username" {
   type        = string
   description = "Username of who is deploying this, for naming purposes"
-  default     = "liam-johnston"
+  default     = "liamjohnston"
+}
+
+variable "cidr_address" {
+  type        = string
+  description = "The CIDR Address of the VPC"
+  default     = "10.1.0.0/23"
+
+  validation {
+    condition     = alltrue([for byte in split(".", split("/", var.cidr_address)[0]) : parseint(byte, 10) > -1 && parseint(byte, 10) < 255])
+    error_message = "Invalid CIDR Address, one or more bytes have invalid values."
+  }
+
+  validation {
+    condition     = parseint(split("/", var.cidr_address)[1], 10) < 24
+    error_message = "Invalid CIDR Address, the subnet range is too small for this application."
+  }
 }
