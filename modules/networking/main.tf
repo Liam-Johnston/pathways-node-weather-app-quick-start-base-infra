@@ -32,7 +32,7 @@ module "public_subnets" {
   az_suffix   = trimprefix(var.az_names[count.index], var.region)
   vpc_id      = aws_vpc.vpc.id
 
-  cidr_block  = cidrsubnet(var.cidr_address, local.public_subnet_newbits, count.index + local.number_of_az * 4)
+  cidr_block  = cidrsubnet(var.cidr_address, local.public_subnet_newbits, count.index + length(var.az_names) * 4)
   subnet_type = "public"
   rt_gw_id    = aws_internet_gateway.igw.id
 }
