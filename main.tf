@@ -5,6 +5,15 @@ module "s3_bucket" {
   tags = var.tags
 }
 
+module "networking" {
+  source = "./modules/networking"
+
+  username     = var.username
+  cidr_address = var.cidr_address
+  region       = var.region
+  az_names     = data.aws_availability_zones.available.names
+}
+
 output "bucket_name" {
   description = "The name of the bucket"
   value       = ["${module.s3_bucket.s3_bucket_name}"]
