@@ -22,6 +22,18 @@ variable "username" {
   default     = "liamjohnston"
 }
 
+variable "app_name" {
+  type        = string
+  description = "The name of this application"
+  default     = "baseinfra"
+}
+
+variable "project_name" {
+  type        = string
+  description = "The name of the project that this app is apart of."
+  default     = "node-weather-app"
+}
+
 variable "cidr_address" {
   type        = string
   description = "The CIDR Address of the VPC"

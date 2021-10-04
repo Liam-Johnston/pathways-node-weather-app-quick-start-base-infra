@@ -4,7 +4,8 @@ provider "aws" {
   default_tags {
     tags = {
       Owner   = var.username
-      Project = "pathwaysdojo"
+      Project = var.project_name
+      App     = var.app_name
     }
   }
 }
