@@ -5,6 +5,7 @@ resource "aws_subnet" "this" {
 
   tags = {
     Name = "${var.username}-${var.subnet_type}-subnet-${var.az_suffix}"
+    Tier = var.subnet_type
   }
 }
 
