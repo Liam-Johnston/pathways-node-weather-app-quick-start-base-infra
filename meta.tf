@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 0.13.0"
   backend "s3" {
     bucket = "pathways-dojo"
-    key    = "liam-johnston-tfstate-main"
+    key    = "liam-johnston-tfstate-base-infra"
     region = "us-east-1"
   }
 
