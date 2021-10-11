@@ -23,30 +23,17 @@ resource "aws_vpc_endpoint" "s3_endpoint" {
   }
 }
 
-module "public_subnets" {
+module "subnets" {
   count       = length(var.az_names)
-  source      = "./subnet"
+  source = "./az_subnets"
 
   username    = var.username
   az          = var.az_names[count.index]
   az_suffix   = trimprefix(var.az_names[count.index], var.region)
-  vpc_id      = aws_vpc.vpc.id
 
-  cidr_block  = cidrsubnet(var.cidr_address, local.public_subnet_newbits, count.index + length(var.az_names) * 4)
-  subnet_type = "public"
-  rt_gw_id    = aws_internet_gateway.igw.id
-}
+  vpc_id              = aws_vpc.vpc.id
+  internet_gateway_id =  aws_internet_gateway.igw.id
 
-module "private_subnets" {
-  count   = length(var.az_names)
-  source  = "./subnet"
-
-  username      = var.username
-  az            = var.az_names[count.index]
-  az_suffix     = trimprefix(var.az_names[count.index], var.region)
-  vpc_id        = aws_vpc.vpc.id
-
-  cidr_block    = cidrsubnet(var.cidr_address, local.private_subnet_newbits, count.index)
-  subnet_type   = "private"
-  rt_nat_gw_id  = module.public_subnets[count.index].nat_gw_id
+  private_cidr_block = cidrsubnet(var.cidr_address, local.private_subnet_newbits, count.index)
+  public_cidr_block = cidrsubnet(var.cidr_address, local.public_subnet_newbits, count.index + length(var.az_names) * 4)
 }

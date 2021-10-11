@@ -37,7 +37,7 @@ variable "project_name" {
 variable "cidr_address" {
   type        = string
   description = "The CIDR Address of the VPC"
-  default     = "10.1.0.0/23"
+  default     = "10.1.0.0/22"
 
   validation {
     condition     = alltrue([for byte in split(".", split("/", var.cidr_address)[0]) : parseint(byte, 10) > -1 && parseint(byte, 10) < 255])
