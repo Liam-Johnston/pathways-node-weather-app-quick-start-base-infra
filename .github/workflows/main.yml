@@ -12,8 +12,6 @@ on:
       - '**.tf'
 jobs:
   terraform_plan:
-    environment:
-      name: approval
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
