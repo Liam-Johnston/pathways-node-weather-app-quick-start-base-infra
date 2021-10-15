@@ -49,3 +49,9 @@ variable "cidr_address" {
     error_message = "Invalid CIDR Address, the subnet range is too small for this application."
   }
 }
+
+variable "github_access_token" {
+  description = "The access token to allow the service to invoke the redploy workflow"
+  type        = string
+  sensitive   = true
+}

@@ -1,4 +1,4 @@
-COMPOSE_RUN_TERRAFORM = docker-compose run --rm tf
+COMPOSE_RUN_TERRAFORM = docker-compose run --rm --workdir="/opt/app/deploy" tf
 COMPOSE_RUN_BASH = docker-compose run --rm --entrypoint bash tf
 COMPOSE_RUN_AWS = docker-compose run --rm --entrypoint aws tf
 
@@ -20,6 +20,8 @@ version:
 	
 .PHONY: init
 init:
+	mkdir -p dist
+	[ ! -f ./dist/function.zip ] && touch ./dist/function.zip || exit 0
 	$(COMPOSE_RUN_TERRAFORM) init -input=false
 	-$(COMPOSE_RUN_TERRAFORM) validate
 	-$(COMPOSE_RUN_TERRAFORM) fmt
@@ -40,7 +42,15 @@ destroy_plan:
 destroy_apply:
 	$(COMPOSE_RUN_TERRAFORM) destroy -auto-approve
 
-.PHONY: list_bucket
-list_bucket: 
-	$(COMPOSE_RUN_AWS) s3 ls
+.PHONY: build_self_heal
+build_self_heal:
+	rm -rf "dist/"
+	mkdir -p dist
+	docker-compose run self_healing_function_build sh \
+		-c "cp -r /app/src/* /app/node_modules .; \
+		apk add zip; \
+		zip -rmq ./function.zip ."
 
+.PHONY: run_self_heal
+run_self_heal:
+	docker-compose run self_healing_function
