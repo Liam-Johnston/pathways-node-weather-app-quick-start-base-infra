@@ -26,13 +26,3 @@ output "container_registry_name" {
   description = "The url of the container registry that is deployed with this app."
   value       = module.container_registry.container_registry_name
 }
-
-output "bucket_name" {
-  description = "The name of the bucket"
-  value       = ["${module.s3_bucket.s3_bucket_name}"]
-}
-
-output "bucket_name_arn" {
-  description = "The name of the bucket"
-  value       = ["${module.s3_bucket.s3_bucket_name_arn}"]
-}
