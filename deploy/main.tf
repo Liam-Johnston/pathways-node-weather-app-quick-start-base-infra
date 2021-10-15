@@ -1,10 +1,3 @@
-module "s3_bucket" {
-  source = "./modules/s3"
-  bucket = var.bucket
-
-  tags = var.tags
-}
-
 module "networking" {
   source = "./modules/networking"
 
