@@ -8,6 +8,16 @@ data "aws_iam_policy_document" "lambda_execution_policy" {
         aws_secretsmanager_secret.github_access_token.arn
       ]
   }
+
+  statement {
+    sid = "Logging"
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
+
 }
 
 data "aws_iam_policy_document" "lambda_execution_role" {
