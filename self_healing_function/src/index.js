@@ -31,7 +31,7 @@ const main = async (repoName) => {
 
 exports.handler = async(event, context) => {
   const SNSMessage = event.Records[0].Sns.Message
-  const repoName = snsMessage.split("/").at(-1)
+  const repoName = SNSMessage.split("/").at(-1)
 
   await main(repoName)
 }
