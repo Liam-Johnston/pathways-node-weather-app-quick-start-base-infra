@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "github_access_token" {
-  name = "${var.username}/${var.project_name}/github-workflow-token"
+  name = "${var.username}/${var.project_name}/github-token"
 }
 
 resource "aws_secretsmanager_secret_version" "github_access_token" {
