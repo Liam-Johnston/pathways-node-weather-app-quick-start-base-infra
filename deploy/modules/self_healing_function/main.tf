@@ -27,13 +27,16 @@ resource "aws_lambda_function" "this" {
   }
 }
 
+resource "aws_lambda_permission" "allow_sns_trigger" {
+  statement_id = "AllowExecutionFromSNS"
+  action = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.this.function_name
+  principal = "sns.amazonaws.com"
+  source_arn = aws_sns_topic.rebuild_event_topic.arn
+}
+
 resource "aws_sns_topic_subscription" "sns_lambda_sub" {
   topic_arn = aws_sns_topic.rebuild_event_topic.arn
   protocol = "lambda"
   endpoint = aws_lambda_function.this.arn
-}
-
-resource "aws_lambda_event_source_mapping" "sns_trigger" {
-  event_source_arn = aws_sns_topic.rebuild_event_topic.arn
-  function_name = aws_lambda_function.this.function_name
 }
