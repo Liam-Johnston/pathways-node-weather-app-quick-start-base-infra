@@ -34,7 +34,7 @@ exports.handler = async(event, context) => {
 
   const SNSMessage = event.Records[0].Sns.Message
   console.log(`Function Invoked with the following SNS message: ${SNSMessage}`)
-  const repoName = SNSMessage.split("/").slice(-1).pop()
+  const repoName = SNSMessage.AlarmName.split("/").slice(-1).pop()
 
   console.log(`Attempting to rebuild the following repo: ${repoName}`)
 
