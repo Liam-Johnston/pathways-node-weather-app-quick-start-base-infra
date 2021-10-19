@@ -9,6 +9,7 @@ const __get_client = () => {
 
 const get_secret = async (key_id) => {
   let client = __get_client()
+  console.log(`Getting secret: ${key_id}`)
   return await client.send(new secretsManager.GetSecretValueCommand({SecretId: key_id}))
     .then( data => data.SecretString)
 }
@@ -30,8 +31,12 @@ const main = async (repoName) => {
 }
 
 exports.handler = async(event, context) => {
+
   const SNSMessage = event.Records[0].Sns.Message
+  console.log(`Function Invoked with the following SNS message: ${SNSMessage}`)
   const repoName = SNSMessage.split("/").slice(-1).pop()
+
+  console.log(`Attempting to rebuild the following repo: ${repoName}`)
 
   await main(repoName)
 }

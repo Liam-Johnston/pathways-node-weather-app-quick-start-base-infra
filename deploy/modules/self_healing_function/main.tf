@@ -40,3 +40,7 @@ resource "aws_sns_topic_subscription" "sns_lambda_sub" {
   protocol = "lambda"
   endpoint = aws_lambda_function.this.arn
 }
+
+resource "aws_cloudwatch_log_group" "log_group" {
+  name = "/aws/lambda/self_healing_utility_function"
+}
