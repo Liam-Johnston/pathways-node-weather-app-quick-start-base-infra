@@ -32,3 +32,8 @@ resource "aws_sns_topic_subscription" "sns_lambda_sub" {
   protocol = "lambda"
   endpoint = aws_lambda_function.this.arn
 }
+
+resource "aws_lambda_event_source_mapping" "sns_trigger" {
+  event_source_arn = aws_sns_topic.rebuild_event_topic.arn
+  function_name = aws_lambda_function.this.function_name
+}
