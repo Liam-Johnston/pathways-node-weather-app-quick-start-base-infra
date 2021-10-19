@@ -32,7 +32,7 @@ const main = async (repoName) => {
 
 exports.handler = async(event, context) => {
 
-  const SNSMessage = event.Records[0].Sns.Message
+  const SNSMessage = JSON.parse(event.Records[0].Sns.Message)
   console.log(`Function Invoked with the following SNS message: ${SNSMessage}`)
   const repoName = SNSMessage.AlarmName.split("/").slice(-1).pop()
 
